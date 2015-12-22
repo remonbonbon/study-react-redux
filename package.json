@@ -1,0 +1,16 @@
+{
+  "name": "study-react-redux",
+  "version": "1.0.0",
+  "description": "A study on React.js and Redux",
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/remonbonbon/study-react-redux.git"
+  },
+  "dependencies": {
+    "babel-preset-es2015": "^6.3.13",
+    "express": "^4.13.3"
+  },
+  "devDependencies": {}
+}
