@@ -1,24 +1,41 @@
+'use strict';
+
 const gulp = require('gulp');
 const gulpWebpack = require('gulp-webpack');
-const webpack = require('webpack')
+const webpack = require('webpack');
+const jade = require('gulp-jade');
+const minimist = require('minimist');
+const _ = require('lodash');
+
+// Command line options
+const OPTIONS = minimist(process.argv.slice(2), {
+	boolean: [
+		'debug',	// --debug: Run debug build.
+	],
+	default: {
+		debug: false,
+	}
+});
 
 // Define source & destination
 const BUILD = {
 	dest: 'build/',
 	js: {
-		files: ['src/main.js'],
-		output: 'main.js',
+		entry: './src/main.js',
+		output: 'bundle.js',
 	},
-	html: {
-		files: ['src/main.js'],
+	jade: {
+		entry: 'src/index.jade',
 	},
 };
 
 // Babel with webpack
-gulp.task('webpack', ()=> gulp.src(BUILD.js.files)
+gulp.task('webpack', ()=> gulp.src([BUILD.js.entry])
 	.pipe(gulpWebpack({
 		watch: true,
-		output: {filename: BUILD.js.output},
+		output: {
+			filename: BUILD.js.output,
+		},
 		module: {
 			loaders: [
 				{
@@ -28,28 +45,29 @@ gulp.task('webpack', ()=> gulp.src(BUILD.js.files)
 					query: {
 						presets: ['es2015', 'react'],
 					}
-				}
+				},
 			]
 		},
-		plugins: [
-			new webpack.optimize.UglifyJsPlugin({
+		plugins: _.compact([
+			!OPTIONS.debug ? new webpack.optimize.UglifyJsPlugin({
 				compress: {warnings: false},
 				sourceMap: false,
-			}),
+			}) : null,
 			new webpack.DefinePlugin({
 				'process.env': {NODE_ENV: '"production"'}
-			})
-		],
+			}),
+		]),
 	}))
 	.pipe(gulp.dest(BUILD.dest))
 );
 
-// Copy html
-gulp.task('html', ()=> gulp.src(BUILD.html.files)
+// Compile jade
+gulp.task('jade', ()=> gulp.src([BUILD.jade.entry])
+	.pipe(jade())
 	.pipe(gulp.dest(BUILD.dest))
 );
 
 gulp.task('default', [
-	'html',
+	'jade',
 	'webpack',
 ]);

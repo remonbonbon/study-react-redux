@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "express": "^4.13.3",
+    "lodash": "^3.10.1",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "react-redux": "^4.0.4",
@@ -24,7 +25,10 @@
     "babel-preset-react": "^6.3.13",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.1",
+    "gulp-jade": "^1.1.0",
     "gulp-webpack": "^1.5.0",
+    "jade": "^1.11.0",
+    "minimist": "^1.2.0",
     "webpack": "^1.12.9"
   }
 }

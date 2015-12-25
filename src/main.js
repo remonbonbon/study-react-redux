@@ -1,3 +1,5 @@
+'use strict';
+
 import { createStore, bindActionCreators, combineReducers, applyMiddleware } from 'redux';
 import { Provider, connect } from 'react-redux';
 import thunkMiddleware from 'redux-thunk';
