@@ -9,39 +9,28 @@ import ReactDOM from 'react-dom';
 
 //--------- Actions ---------
 const Actions = {
-	increment: ()=> {
+	now: (time)=> {
 		return {
-			type: 'INCREMENT'
-		};
-	},
-	decrement: ()=> {
-		return {
-			type: 'DECREMENT'
-		};
-	},
-	incrementAsync: ()=> {
-		// redux-thunk allows async dispatch.
-		return (dispatch)=> {
-			setTimeout(()=> {
-				dispatch(Actions.increment());
-			}, 1000);
+			type: 'NOW',
+			time: time,
 		};
 	},
 };
 
 // --------- Reducers ---------
-function counterReducer(state = 0, action) {
+function timeReducer(state = 0, action) {
 	switch (action.type) {
-	case 'INCREMENT':
-		return state + 1;
-	case 'DECREMENT':
-		return state - 1;
+	case 'NOW':
+		return {
+			value: action.time,
+			stamp: new Date(action.time).toISOString().replace('T', ' ').substr(0, 23),
+		};
 	default:
 		return state;
 	}
 }
 const rootReducer = combineReducers({
-	counter: counterReducer
+	time: timeReducer
 });
 
 //--------- Store ---------
@@ -49,49 +38,45 @@ const createStoreWithMiddleware = applyMiddleware(
 	thunkMiddleware,
 	createLoggerMiddleware()
 )(createStore);
-const initialState = {
-	counter: 100,
-};
+const initialState = rootReducer({}, Actions.now(Date.now()));
 const store = createStoreWithMiddleware(rootReducer, initialState);
 
 //--------- View (React) ---------
-class CounterApp extends Component {
+class TimerApp extends Component {
 	render() {
-		const { increment, incrementAsync, decrement, counter } = this.props;
+		const { timestamp } = this.props;
 		return (
 			<p>
-				Clicked: {counter} times
-				{' '}
-				<button onClick={increment}>+</button>
-				{' '}
-				<button onClick={incrementAsync}>+ async</button>
-				{' '}
-				<button onClick={decrement}>-</button>
+				<span style={ {fontFamily: 'monospace', fontSize: '20pt'} }>
+					{timestamp}
+				</span>
 			</p>
 		);
 	}
-}
-CounterApp.propTypes = {
-	increment: PropTypes.func.isRequired,
-	incrementAsync: PropTypes.func.isRequired,
-	decrement: PropTypes.func.isRequired,
-	counter: PropTypes.number.isRequired,
-};
 
-function mapStateToProps(state) {
-	return {
-		counter: state.counter
-	};
+	componentWillMount() {
+		setInterval(()=> {
+			this.props.now(Date.now());
+		}, 500);
+	}
 }
-function mapDispatchToProps(dispatch) {
-	return bindActionCreators(Actions, dispatch);
-}
-const App = connect(mapStateToProps, mapDispatchToProps)(CounterApp);
+TimerApp.propTypes = {
+	now: PropTypes.func.isRequired,
+	timestamp: PropTypes.string.isRequired,
+};
+const App = connect(
+	(state)=> {
+		return {
+			timestamp: state.time.stamp
+		};
+	},
+	(dispatch)=> bindActionCreators(Actions, dispatch)
+)(TimerApp);
 
 
 ReactDOM.render(
 	<Provider store={store}>
-		<App></App>
+		<App />
 	</Provider>,
 	document.getElementById('root')
 );
